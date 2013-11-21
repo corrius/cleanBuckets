@@ -4,32 +4,40 @@
 
     use Aws\Common\Aws;
 
-    // Instantiate the S3 client with your AWS credentials and desired AWS regionws\Common\Aws;
+    //The bucket's name you want to keep at your S3.
+    $dontDelete = '';
+
+    // Instantiate the S3 client with your AWS credentials and desired AWS region Aws\Common\Aws;
 
     //aws factory
     $aws = Aws::factory('/var/www/vendor/aws/aws-sdk-php/src/Aws/Common/Resources/custom-config.php');
 
     $client = $aws->get('S3'); 
 
+    //List every existing bucket.
     $result = $client->listBuckets();
 
+    //It iterates over every bucket listed.
     foreach ($result['Buckets'] as $bucket) {
-        if ($bucket['Name'] != 'corrius'){
-            $iterator = $client->getIterator('ListObjects', array(
+
+        //If the bucket is not the one we want to keep.
+        if ($bucket['Name'] != $dontDelete){
+            //List every existing object in the bucket.
+            $objects = $client->getIterator('ListObjects', array(
                 'Bucket' => $bucket['Name']
             ));
-
-            foreach ($iterator as $object) {
+            //Deletes every object in the bucket.
+            foreach ($objects as $object) {
                 $deleteObject = $client->deleteObject(array(
                     // Bucket is required
                     'Bucket' => $bucket['Name'],
-                    // Key is required
+                    //Key of the object in the bucket
                     'Key' => $object['Key'],
                 ));
             }
-            // Each Bucket value will contain a Name and CreationDate
+            // Once every object in the bucket have been deleted 
+            // it's possible to delete the bucket.
             $deleteBucket = $client->deleteBucket(array(
-                // Bucket is required
                 'Bucket' => $bucket['Name'],
             ));
         }
