@@ -1,5 +1,5 @@
-cleanBuckets
-============
+cleanBuckets.php
+================
 
 A simple php script that delete every S3 bucket in your aws account but the one you specify at the beginning.
 
